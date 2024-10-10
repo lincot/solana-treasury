@@ -20,9 +20,9 @@ impl Treasury {
 }
 
 impl Treasury {
-    /// Calculates the lowest balance that would remain after a fair distribution.
-    /// In the worst case it's equal to `balance % 10000`,
-    /// in the best case it's equal to `balance % 2`.
+    /// Calculates the amount that cannot be evenly distributed based on the
+    /// owners' shares in basis points. In the worst-case scenario, it is
+    /// equal to `balance % 10000`.
     pub fn get_remaining_balance(&self, balance: u64) -> u64 {
         let gcd_bps = self
             .owners
@@ -35,6 +35,7 @@ impl Treasury {
     }
 }
 
+/// One of the treasury owners, recipient of a share of the treasury balance.
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, Debug)]
 pub struct TreasuryOwner {
     pub address: Pubkey,
@@ -46,6 +47,7 @@ impl TreasuryOwner {
         32 + 2
     }
 
+    /// Calculates the owner's proportional share of a given amount.
     pub fn get_share(&self, amount: u64) -> u64 {
         ((amount as u128)
             .checked_mul(self.share_bps as u128)
