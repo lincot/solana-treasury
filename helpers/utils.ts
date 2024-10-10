@@ -9,22 +9,24 @@ import {
 
 export async function airdrop(
   connection: Connection,
-  toPubkeys: PublicKey[],
-  fromKeypair: Keypair,
+  to: PublicKey,
+  amount: number,
 ): Promise<void> {
-  const amount = 500_000_000;
   await connection.confirmTransaction({
     signature: await connection.requestAirdrop(
-      fromKeypair.publicKey,
-      amount * (toPubkeys.length + 1),
+      to,
+      amount,
     ),
     ...(await connection.getLatestBlockhash()),
   });
+}
 
-  if (toPubkeys.length == 0) {
-    return;
-  }
-
+export async function disperse(
+  connection: Connection,
+  toPubkeys: PublicKey[],
+  fromKeypair: Keypair,
+  amount: number,
+): Promise<void> {
   const tx = new Transaction();
   for (const toPubkey of toPubkeys) {
     tx.add(
